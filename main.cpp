@@ -1,6 +1,7 @@
 #include <iostream>
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#include "wrapper/chackError.h"
 
 void frameBufferSizeCallBack(GLFWwindow *window,int width,int height) 
 {
@@ -16,30 +17,6 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
 	}
 
 	std::cout << "key:" << key << "action:" << action<<"mods:"<< mods<<std::endl;
-}
-
-void checkError()
-{
-	GLenum err = glGetError();
-	switch (err)
-	{
-	case GL_NO_ERROR:
-		break;
-	case GL_INVALID_ENUM:
-		std::cout << "GL_INVALID_ENUM" << std::endl;
-		break;
-	case GL_INVALID_VALUE:
-		std::cout << "GL_INVALID_VALUE" << std::endl;
-		break;
-	case GL_INVALID_OPERATION:
-		std::cout << "GL_INVALID_OPERATION" << std::endl;
-		break;
-	case GL_OUT_OF_MEMORY:
-		std::cout << "GL_OUT_OF_MEMORY" << std::endl;
-		break;
-	default:
-		break;
-	}
 }
 
 int main()
@@ -74,9 +51,9 @@ int main()
 	//3.Ö´ÐÐ´°¿ÚÑ­»·
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 		//glClear(-1);
-		
+		checkError();
 		glfwPollEvents();
 
 		glfwSwapBuffers(window);
