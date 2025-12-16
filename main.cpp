@@ -1,8 +1,11 @@
 #include <iostream>
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include "wrapper/chackError.h"
 #include "application/Application.h"
+#pragma comment(lib, "opengl32.lib")
+GLuint vao, program;
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -112,7 +115,7 @@ void prepareInterleavedBuffer()
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW));
 	//准备VAO
-	GLuint vao = 0;
+	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
 	//描述位置属性
@@ -175,7 +178,7 @@ void prepareShader()
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 	//创建程序
-	GLuint program = glCreateProgram();
+	program = glCreateProgram();
 
 	//添加着色器到程序
 	GL_CALL(glAttachShader(program, vertex));
@@ -196,6 +199,18 @@ void prepareShader()
 	glDeleteShader(fragment);
 }
 
+void render()
+{
+	//清理
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+	//使用着色器程序
+	GL_CALL(glUseProgram(program));
+	//绑定VAO
+	GL_CALL(glBindVertexArray(vao));
+	//绘制
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
 int main()
 {
 	if (!Application::getInstance()->init())
@@ -208,13 +223,13 @@ int main()
 	//设置清屏颜色
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	prepareShader();
-	prepare();
-	prepareSingleBuffer();
+	//prepare();
+	//prepareSingleBuffer();
 	prepareInterleavedBuffer();
 	//执行窗口循环
 	while (Application::getInstance()->update())
 	{
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+		render();
 	}
 
 	//4.释放资源
