@@ -74,11 +74,27 @@ void prepareSingleBuffer()
 	GLuint posVbo = 0, colorVbo = 0;
 	GL_CALL(glGenBuffers(1, &posVbo));  //创建位置VBO
 	GL_CALL(glGenBuffers(1, &colorVbo));  //创建颜色VBO
+	//准备VAO
+	GLuint vao = 0;
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glBindVertexArray(vao));
+
 	//绑定VBO
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, posVbo));
 	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW));
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, colorVbo));
 	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW));
+	//描述位置属性
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, posVbo));
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	//描述颜色属性
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, colorVbo));
+	GL_CALL(glEnableVertexAttribArray(1));
+	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	//解绑VAO
+	GL_CALL(glBindVertexArray(0));
+
 }
 
 void prepareInterleavedBuffer()
@@ -95,6 +111,89 @@ void prepareInterleavedBuffer()
 	//绑定VBO
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW));
+	//准备VAO
+	GLuint vao = 0;
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glBindVertexArray(vao));
+	//描述位置属性
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
+	//描述颜色属性
+	GL_CALL(glEnableVertexAttribArray(1));
+	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	//解绑VAO
+	GL_CALL(glBindVertexArray(0));
+}
+
+void prepareShader()
+{
+	//编译顶点着色器	
+	const char* vertexShaderSource = R"(
+		#version 460 core
+		layout (location = 0) in vec3 aPos;
+		out vec3 ourColor;
+		void main()
+		{
+			gl_Position = vec4(aPos.x,aPos.y,aPos.z,1.0);
+		}
+	)";
+	//编译片段着色器
+	const char* fragmentShaderSource = R"(
+		#version 460 core
+		out vec4 FragColor;
+		void main()
+		{
+			FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+		}
+	)";
+	//创建Shader Program
+	GLuint vertex, fragment;
+	vertex = glCreateShader(GL_VERTEX_SHADER);
+	fragment = glCreateShader(GL_FRAGMENT_SHADER);
+	
+	//为程序输入代码
+	GL_CALL(glShaderSource(vertex, 1, &vertexShaderSource, NULL));
+	GL_CALL(glShaderSource(fragment, 1, &fragmentShaderSource, NULL));
+
+	//执行编译
+	int success=0;
+	char infoLog[512];
+	GL_CALL(glCompileShader(vertex));
+	//检查编译错误
+	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	GL_CALL(glCompileShader(fragment));
+	//检查编译错误
+	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	//创建程序
+	GLuint program = glCreateProgram();
+
+	//添加着色器到程序
+	GL_CALL(glAttachShader(program, vertex));
+	GL_CALL(glAttachShader(program, fragment));
+
+	//链接程序
+	
+	glLinkProgram(program);
+	//检查链接错误
+	glGetProgramiv(program, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(program, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	//清理着色器
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
 }
 
 int main()
@@ -108,6 +207,7 @@ int main()
 	
 	//设置清屏颜色
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	prepareShader();
 	prepare();
 	prepareSingleBuffer();
 	prepareInterleavedBuffer();
