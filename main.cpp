@@ -135,12 +135,16 @@ void prepareVAO()
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
 	GL_CALL(glBindVertexArray(vao));
+
+	//动态获取属性位置
+	GLuint posAttrib =glGetAttribLocation(shader->mProgram, "aPos");
+	GLuint colorAttrib = glGetAttribLocation(shader->mProgram, "aColor");
 	//描述位置属性
-	GL_CALL(glEnableVertexAttribArray(0));
-	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
+	GL_CALL(glEnableVertexAttribArray(posAttrib));
+	GL_CALL(glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
 	//描述颜色属性
-	GL_CALL(glEnableVertexAttribArray(1));
-	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	GL_CALL(glEnableVertexAttribArray(colorAttrib));
+	GL_CALL(glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
 	//绑定EBO到VAO
 	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
 

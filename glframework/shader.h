@@ -15,6 +15,6 @@ public:
 private:
 	void checkCompileErrors(GLuint target, std::string type);
 
-private:
+public:
 	GLuint mProgram{ 0 };
 };
