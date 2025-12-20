@@ -1,12 +1,14 @@
 #include <iostream>
 
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include "glframework/core.h"
+#include "glframework/shader.h"
+
 #include "wrapper/chackError.h"
 #include "application/Application.h"
 #pragma comment(lib, "opengl32.lib")
-GLuint vao, program;
 
+GLuint vao, program;
+Shader* shader = nullptr;
 void onKey(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_W)
@@ -177,77 +179,7 @@ void prepareInterleavedBuffer()
 
 void prepareShader()
 {
-	//编译顶点着色器	
-	const char* vertexShaderSource = R"(
-		#version 460 core
-		layout (location = 0) in vec3 aPos;
-		layout (location = 1) in vec3 aColor;
-		out vec3 ourColor;
-		void main()
-		{
-			gl_Position = vec4(aPos.x,aPos.y,aPos.z,1.0);
-			ourColor = aColor;
-		}
-	)";
-	//编译片段着色器
-	const char* fragmentShaderSource = R"(
-		#version 460 core
-		out vec4 FragColor;
-		in vec3 ourColor;
-		void main()
-		{
-			//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-			FragColor = vec4(ourColor.r, ourColor.g, ourColor.b, 1.0f);
-		}
-	)";
-	//创建Shader Program
-	GLuint vertex, fragment;
-	vertex = glCreateShader(GL_VERTEX_SHADER);
-	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	
-	//为程序输入代码
-	GL_CALL(glShaderSource(vertex, 1, &vertexShaderSource, NULL));
-	GL_CALL(glShaderSource(fragment, 1, &fragmentShaderSource, NULL));
-
-	//执行编译
-	int success=0;
-	char infoLog[512];
-	GL_CALL(glCompileShader(vertex));
-	//检查编译错误
-	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	GL_CALL(glCompileShader(fragment));
-	//检查编译错误
-	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	//创建程序
-	program = glCreateProgram();
-
-	//添加着色器到程序
-	GL_CALL(glAttachShader(program, vertex));
-	GL_CALL(glAttachShader(program, fragment));
-
-	//链接程序
-	
-	glLinkProgram(program);
-	//检查链接错误
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(program, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-	//清理着色器
-	glDeleteShader(vertex);
-	glDeleteShader(fragment);
+	shader = new Shader("./assets/shaders/vertex.glsl", "./assets/shaders/fragment.glsl");
 }
 
 void render()
@@ -255,22 +187,12 @@ void render()
 	//清理
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 	//使用着色器程序
-	GL_CALL(glUseProgram(program));
+	shader->begin();
 	//绑定VAO
 	GL_CALL(glBindVertexArray(vao));
-	//绘制
-	//glDrawArrays(GL_TRIANGLES, 0, 4);
-	//strip
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	//fan
-	//glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	//lines
-	//glDrawArrays(GL_LINES, 0, 4);
-	//line strip
-	//glDrawArrays(GL_LINE_STRIP, 0, 4);
-	//EBO
 	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
 	GL_CALL(glBindVertexArray(0));
+	shader->end();
 }
 
 int main()
