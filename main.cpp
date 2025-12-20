@@ -100,6 +100,38 @@ void prepareSingleBuffer()
 
 }
 
+void prepareFourBuffer()
+{
+	float vertexData[] = {
+		// 位置              // 颜色
+		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f
+		-1.0f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
+		 0.0f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f
+
+	};
+	//准备VBO
+	GLuint vbo = 0;
+	GL_CALL(glGenBuffers(1, &vbo));  //创建位置VBO
+	//绑定VBO
+	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW));
+	//准备VAO
+	vao = 0;
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glBindVertexArray(vao));
+	//描述位置属性
+	GL_CALL(glEnableVertexAttribArray(0));
+	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
+	//描述颜色属性
+	GL_CALL(glEnableVertexAttribArray(1));
+	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	//解绑VAO
+	GL_CALL(glBindVertexArray(0));
+}
+
 void prepareInterleavedBuffer()
 {
 	float vertexData[] = {
@@ -208,7 +240,15 @@ void render()
 	//绑定VAO
 	GL_CALL(glBindVertexArray(vao));
 	//绘制
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glDrawArrays(GL_TRIANGLES, 0, 4);
+	//strip
+	//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	//fan
+	//glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	//lines
+	//glDrawArrays(GL_LINES, 0, 4);
+	//line strip
+	glDrawArrays(GL_LINE_STRIP, 0, 4);
 }
 
 int main()
@@ -225,7 +265,8 @@ int main()
 	prepareShader();
 	//prepare();
 	//prepareSingleBuffer();
-	prepareInterleavedBuffer();
+	//prepareInterleavedBuffer();
+	prepareFourBuffer();
 	//执行窗口循环
 	while (Application::getInstance()->update())
 	{
