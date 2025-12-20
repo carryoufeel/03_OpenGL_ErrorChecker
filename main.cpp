@@ -100,7 +100,7 @@ void prepareSingleBuffer()
 
 }
 
-void prepareFourBuffer()
+void prepareVAO()
 {
 	float vertexData[] = {
 		// 位置              // 颜色
@@ -112,12 +112,23 @@ void prepareFourBuffer()
 		 0.0f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f
 
 	};
+	unsigned int indices[] = {
+		0, 1, 2, // first triangle
+		2, 1, 3  // second triangle
+		
+	};
 	//准备VBO
 	GLuint vbo = 0;
 	GL_CALL(glGenBuffers(1, &vbo));  //创建位置VBO
 	//绑定VBO
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW));
+	//准备EBO
+	GLuint ebo = 0;
+	GL_CALL(glGenBuffers(1, &ebo));  //创建EBO
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+
 	//准备VAO
 	vao = 0;
 	GL_CALL(glGenVertexArrays(1, &vao));
@@ -128,6 +139,10 @@ void prepareFourBuffer()
 	//描述颜色属性
 	GL_CALL(glEnableVertexAttribArray(1));
 	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	//绑定EBO到VAO
+	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+
+
 	//解绑VAO
 	GL_CALL(glBindVertexArray(0));
 }
@@ -248,7 +263,10 @@ void render()
 	//lines
 	//glDrawArrays(GL_LINES, 0, 4);
 	//line strip
-	glDrawArrays(GL_LINE_STRIP, 0, 4);
+	//glDrawArrays(GL_LINE_STRIP, 0, 4);
+	//EBO
+	glDrawElements(GL_TRIANGLES,3,GL_UNSIGNED_INT,(void*)(sizeof(int)*3));
+	GL_CALL(glBindVertexArray(0));
 }
 
 int main()
@@ -266,7 +284,7 @@ int main()
 	//prepare();
 	//prepareSingleBuffer();
 	//prepareInterleavedBuffer();
-	prepareFourBuffer();
+	prepareVAO();
 	//执行窗口循环
 	while (Application::getInstance()->update())
 	{
