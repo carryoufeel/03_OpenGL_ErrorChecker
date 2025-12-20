@@ -1,9 +1,10 @@
 		#version 460 core
 		out vec4 FragColor;
 		in vec3 ourColor;
-
+		uniform float time;
 		void main()
 		{
 			//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-			FragColor = vec4(ourColor.r, ourColor.g, ourColor.b, 1.0f);
+			float intensity = (sin(time)+1.0)/2.0;
+			FragColor = vec4(vec3(intensity)+ ourColor, 1.0f);
 		}

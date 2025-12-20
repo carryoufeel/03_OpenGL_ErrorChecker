@@ -1,5 +1,5 @@
 #include "shader.h"
-#include "shader.h"
+
 #include "../wrapper/chackError.h"
 
 #include <string>
@@ -64,6 +64,13 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 Shader::~Shader()
 {
 
+}
+
+
+void Shader::setFloat(const std::string& name, float value)
+{
+	GLint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
+	GL_CALL(glUniform1f(location, value));
 }
 
 void Shader::checkCompileErrors(GLuint target, std::string type)

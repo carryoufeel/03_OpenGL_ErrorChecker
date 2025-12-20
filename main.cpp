@@ -188,6 +188,8 @@ void render()
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 	//使用着色器程序
 	shader->begin();
+
+	shader->setFloat("time", (float)glfwGetTime());
 	//绑定VAO
 	GL_CALL(glBindVertexArray(vao));
 	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
