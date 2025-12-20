@@ -12,6 +12,8 @@ public:
 	void begin();
 	void end();
 	void setFloat(const std::string &name,float value);
+	void setVector3(const std::string& name, float x, float y, float z);
+	void setVector3(const std::string& name, const float* value);
 
 private:
 	void checkCompileErrors(GLuint target, std::string type);

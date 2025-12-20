@@ -189,7 +189,13 @@ void render()
 	//使用着色器程序
 	shader->begin();
 
-	shader->setFloat("time", (float)glfwGetTime());
+	//shader->setFloat("time", (float)glfwGetTime());
+	//shader->setFloat("speed", 4.0f);
+
+	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
+	float color[3] = { 0.9f,0.2f,0.2f };
+	shader->setVector3("uColor", color);
+
 	//绑定VAO
 	GL_CALL(glBindVertexArray(vao));
 	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
