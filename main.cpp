@@ -70,9 +70,10 @@ void prepareSingleBuffer()
 {
 	float positions[] = {
 		// 位置              
-		 0.5f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
+		 -0.5f,  0.5f, 0.0f,
+		 -0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.5f,  0.5f, 0.0f
 	};
 	float colors[] = {
 		// 颜色
@@ -111,19 +112,21 @@ void prepareVAO()
 {
 	float vertexData[] = {
 		// 位置              // 颜色
-		 -0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+		 -1.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f
 	};
 	unsigned int indices[] = {
 		0, 1, 2, // first triangle
+		0, 2, 3  // second triangle
 
 	};
-
 	float uvs[]= {
+		0.0f, 1.0f,
 		0.0f, 0.0f,
 		1.0f, 0.0f,
-		0.5f, 1.0f,
+		1.0f, 1.0f
 	};
 
 	//准备VBO
@@ -208,8 +211,8 @@ void render()
 	//使用着色器程序
 	shader->begin();
 
-	//shader->setFloat("time", (float)glfwGetTime());
-	//shader->setFloat("speed", 4.0f);
+	shader->setFloat("time", (float)glfwGetTime());
+	shader->setFloat("speed", 4.0f);
 
 	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
 	//float color[3] = { 0.9f,0.2f,0.2f };

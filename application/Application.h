@@ -18,7 +18,7 @@ public:
 	uint32_t getHeight() const { return mHeight; }
 
 	//1.init
-	bool init(const int& width=800,const int& height=600);
+	bool init(const int& width=1920,const int& height=1080);
 	//2.update
 	bool update();
 	//3,destroy

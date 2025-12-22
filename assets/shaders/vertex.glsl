@@ -17,5 +17,7 @@
 			//ourColor = aColor*(cos(time)+1.0)/2.0;
 			gl_Position = vec4(aPos, 1.0);
 			ourColor = aColor;
-			uv = aUV;
+			float deltaU=time*speed*0.1;
+			uv = vec2(aUV.x + deltaU, aUV.y);
+
 		}
