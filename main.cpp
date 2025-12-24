@@ -12,7 +12,9 @@
 
 GLuint vao;
 Shader* shader = nullptr;
-Texture* texture = nullptr;
+Texture* grassTexture = nullptr;
+Texture* landTexture = nullptr;
+Texture* noiseTexture = nullptr;
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -217,7 +219,9 @@ void render()
 	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
 	//float color[3] = { 0.9f,0.2f,0.2f };
 	//shader->setVector3("uColor", color);
-	shader->setInt("sampler", 0);
+	shader->setInt("grassSampler",0);
+	shader->setInt("landSampler",1);
+	shader->setInt("noiseSampler",2);
 	//绑定VAO
 	GL_CALL(glBindVertexArray(vao));
 	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
@@ -227,7 +231,9 @@ void render()
 
 void prepareTexture()
 {
-	texture = new Texture("./assets/textures/ml.jpg", 0);
+	grassTexture = new Texture("./assets/textures/gress.jpg", 0);
+	landTexture = new Texture("./assets/textures/land.jpg", 1);
+	noiseTexture = new Texture("./assets/textures/noise.png", 2);
 }
 
 int main()
@@ -252,7 +258,8 @@ int main()
 	{
 		render();
 	}
-	delete texture;
+	delete grassTexture;
+	delete landTexture;
 	delete shader;
 	//4.释放资源
 	Application::getInstance()->destroy();
