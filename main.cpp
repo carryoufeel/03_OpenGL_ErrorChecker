@@ -6,14 +6,14 @@
 #include "wrapper/chackError.h"
 #include "application/Application.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "application/stb_image.h"
+#include "glframework/texture.h"
 
 #pragma comment(lib, "opengl32.lib")
 
-GLuint vao, program;
-GLuint texture;
+GLuint vao;
 Shader* shader = nullptr;
+Texture* texture = nullptr;
+
 void onKey(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_W)
@@ -211,8 +211,8 @@ void render()
 	//使用着色器程序
 	shader->begin();
 
-	shader->setFloat("time", (float)glfwGetTime());
-	shader->setFloat("speed", 4.0f);
+	//shader->setFloat("time", (float)glfwGetTime());
+	//shader->setFloat("speed", 4.0f);
 
 	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
 	//float color[3] = { 0.9f,0.2f,0.2f };
@@ -227,26 +227,7 @@ void render()
 
 void prepareTexture()
 {
-	//1 使用stb_image加载图片
-	int width, height, channels;
-	stbi_set_flip_vertically_on_load(true); //翻转图片y轴
-	unsigned char* data = stbi_load("./assets/textures/boki.png", &width, &height, &channels, STBI_rgb_alpha);
-	//2 生成纹理对象并激活单元绑定
-	GL_CALL(glGenTextures(1, &texture));
-	GL_CALL(glActiveTexture(GL_TEXTURE0));
-	GL_CALL(glBindTexture(GL_TEXTURE_2D, texture));
-	//3 传输纹理数据
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
-	//释放数据
-	stbi_image_free(data);
-	//4 设置纹理过滤方式
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	//5 设置纹理环绕方式
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));//U
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));//V
-
-
+	texture = new Texture("./assets/textures/ml.jpg", 0);
 }
 
 int main()
@@ -271,7 +252,8 @@ int main()
 	{
 		render();
 	}
-
+	delete texture;
+	delete shader;
 	//4.释放资源
 	Application::getInstance()->destroy();
 
