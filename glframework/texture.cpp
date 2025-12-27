@@ -16,10 +16,11 @@ Texture::Texture(const std::string& filePath, unsigned int unit)
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
 	//3 传输纹理数据
 	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+	GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 	//释放数据
 	stbi_image_free(data);
 	//4 设置纹理过滤方式
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	//5 设置纹理环绕方式
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));//U

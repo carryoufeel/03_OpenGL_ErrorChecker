@@ -213,15 +213,15 @@ void render()
 	//使用着色器程序
 	shader->begin();
 
-	//shader->setFloat("time", (float)glfwGetTime());
+	shader->setFloat("time", (float)glfwGetTime());
 	//shader->setFloat("speed", 4.0f);
 
 	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
 	//float color[3] = { 0.9f,0.2f,0.2f };
 	//shader->setVector3("uColor", color);
 	shader->setInt("grassSampler",0);
-	shader->setInt("landSampler",1);
-	shader->setInt("noiseSampler",2);
+	//shader->setInt("landSampler",1);
+	//shader->setInt("noiseSampler",2);
 	//绑定VAO
 	GL_CALL(glBindVertexArray(vao));
 	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
@@ -231,9 +231,9 @@ void render()
 
 void prepareTexture()
 {
-	grassTexture = new Texture("./assets/textures/gress.jpg", 0);
-	landTexture = new Texture("./assets/textures/land.jpg", 1);
-	noiseTexture = new Texture("./assets/textures/noise.png", 2);
+	grassTexture = new Texture("./assets/textures/hjs.jpg", 0);
+	//landTexture = new Texture("./assets/textures/land.jpg", 1);
+	//noiseTexture = new Texture("./assets/textures/noise.png", 2);
 }
 
 int main()

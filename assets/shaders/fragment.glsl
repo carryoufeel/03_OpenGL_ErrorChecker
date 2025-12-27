@@ -18,13 +18,13 @@
 			//FragColor = vec4(ourColor, 1.0f);
 			//FragColor = texture(sampler, uv);
 			vec4 grassColor=texture(grassSampler, uv);
-			vec4 landColor=texture(landSampler, uv);
-			vec4 noiseColor=texture(noiseSampler, uv);
+			//vec4 landColor=texture(landSampler, uv);
+			//vec4 noiseColor=texture(noiseSampler, uv);
 
-			float weight=noiseColor.r;
+			//float weight=noiseColor.r;
 			
 			//vec4 finalColor=grassColor*(1.0-weight)+landColor*weight;
 			//
-			vec4 finalColor=mix(grassColor, landColor, weight);
-			FragColor =vec4(finalColor.rgb,1.0);
+			//vec4 finalColor=mix(grassColor, landColor, weight);
+			FragColor =grassColor;
 		}

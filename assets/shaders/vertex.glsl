@@ -13,11 +13,15 @@
 		{
 			//float dx = 0.3;
 			//float offset = dx * sin(time*speed);
+			float scale=1.0/time;
+
 			//gl_Position = vec4(aPos.x+offset,aPos.y,aPos.z,1.0);
 			//ourColor = aColor*(cos(time)+1.0)/2.0;
-			gl_Position = vec4(aPos, 1.0);
+			vec3 sPos=aPos*scale;
+
+			gl_Position = vec4(sPos, 1.0);
 			ourColor = aColor;
-			float deltaU=time*speed*0.1;
-			uv = vec2(aUV.x + deltaU, aUV.y);
+			//float deltaU=time*speed*0.1;
+			uv = aUV;
 
 		}
