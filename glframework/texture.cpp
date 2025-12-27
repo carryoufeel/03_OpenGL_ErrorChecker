@@ -15,11 +15,24 @@ Texture::Texture(const std::string& filePath, unsigned int unit)
 	GL_CALL(glActiveTexture(GL_TEXTURE0 + mUnit));
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, mTexture));
 	//3 传输纹理数据
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+	int w = mWidth;
+	int h = mHeight;
+	//GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+	for (int level = 0;true; ++level)
+	{
+		GL_CALL(glTexImage2D(GL_TEXTURE_2D, level, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+		if (w == 1 && h == 1)
+			break;
+		w = std::max(1, w / 2);
+		h = std::max(1, h / 2);
+	}
 	//释放数据
 	stbi_image_free(data);
 	//4 设置纹理过滤方式
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	//GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	//GL_NEAREST: 当纹理被缩小的时候，选择距离当前像素中心点最近的那个纹理像素进行渲染
+	//MIPMAP_LINEAR: 使用线性插值在mipmap级别之间进行采样
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	//5 设置纹理环绕方式
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));//U

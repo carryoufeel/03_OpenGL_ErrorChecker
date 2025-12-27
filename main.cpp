@@ -213,7 +213,7 @@ void render()
 	//使用着色器程序
 	shader->begin();
 
-	//shader->setFloat("time", (float)glfwGetTime());
+	shader->setFloat("time", (float)glfwGetTime());
 	//shader->setFloat("speed", 4.0f);
 
 	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
