@@ -15,6 +15,7 @@ Shader* shader = nullptr;
 Texture* grassTexture = nullptr;
 Texture* landTexture = nullptr;
 Texture* noiseTexture = nullptr;
+glm::mat4 transform(1.0);
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -30,6 +31,11 @@ void OnResize(int width,int height)
 {
 	std::cout << "OnResize new size" << width << "," << height << std::endl;
 	GL_CALL(glViewport(0, 0, width, height));
+}
+
+void doTransform()
+{
+	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
 }
 
 void prepareVBO()
@@ -114,10 +120,10 @@ void prepareVAO()
 {
 	float vertexData[] = {
 		// 位置              // 颜色
-		 -1.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f
+		 -0.8f,  0.8f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 -0.8f, -0.8f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.8f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
+		0.8f,  0.8f, 0.0f, 1.0f, 1.0f, 0.0f
 	};
 	unsigned int indices[] = {
 		0, 1, 2, // first triangle
@@ -213,13 +219,14 @@ void render()
 	//使用着色器程序
 	shader->begin();
 
-	shader->setFloat("time", (float)glfwGetTime());
+	//shader->setFloat("time", (float)glfwGetTime());
 	//shader->setFloat("speed", 4.0f);
 
 	//shader->setVector3("uColor", 0.3f, 0.4f, 0.5f);
 	//float color[3] = { 0.9f,0.2f,0.2f };
 	//shader->setVector3("uColor", color);
 	shader->setInt("grassSampler",0);
+	shader->setMatrix4x4("transform", transform);
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
@@ -238,6 +245,8 @@ void prepareTexture()
 
 int main()
 {
+	
+
 	if (!Application::getInstance()->init())
 	{
 		return -1;
@@ -253,6 +262,7 @@ int main()
 	//prepareInterleavedBuffer();
 	prepareVAO();
 	prepareTexture();
+	doTransform();
 	//执行窗口循环
 	while (Application::getInstance()->update())
 	{

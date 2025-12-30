@@ -16,7 +16,7 @@ public:
 	void setVector3(const std::string& name, const float* value);
 
 	void setInt(const std::string& name, int value);
-
+	void setMatrix4x4(const std::string& name,glm::mat4 value);
 private:
 	void checkCompileErrors(GLuint target, std::string type);
 

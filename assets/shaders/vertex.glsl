@@ -9,17 +9,23 @@
 		out vec3 ourColor;
 		out vec2 uv;
 
+		uniform mat4 transform;
+
 		void main()
 		{
 			//float dx = 0.3;
 			//float offset = dx * sin(time*speed);
-			float scale=1.0/time;
+			//float scale=1.0/time;
 
 			//gl_Position = vec4(aPos.x+offset,aPos.y,aPos.z,1.0);
 			//ourColor = aColor*(cos(time)+1.0)/2.0;
-			vec3 sPos=aPos*scale;
+			//vec3 sPos=aPos*scale;
 
-			gl_Position = vec4(sPos, 1.0);
+			vec4 position = vec4(aPos, 1.0);
+
+			position = transform * position;
+
+			gl_Position = position;
 			ourColor = aColor;
 			//float deltaU=time*speed*0.1;
 			uv = aUV;
