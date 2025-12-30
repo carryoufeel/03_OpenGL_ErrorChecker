@@ -33,9 +33,35 @@ void OnResize(int width,int height)
 	GL_CALL(glViewport(0, 0, width, height));
 }
 
-void doTransform()
+void doRotationTransform()
 {
 	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+}
+
+void doTranslationTransform()
+{
+	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
+}
+
+void doScaleTransform()
+{
+	transform = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+}
+
+void doTransform()
+{
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
+	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+	//transform = translation * rotation ;
+	transform = rotation * translation;
+}
+
+void doRotation() 
+{
+	static float angle = 0.0f;
+	angle += 1.0f;
+	transform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
 }
 
 void prepareVBO()
@@ -262,10 +288,14 @@ int main()
 	//prepareInterleavedBuffer();
 	prepareVAO();
 	prepareTexture();
-	doTransform();
+	//doRotationTransform();
+	//doTranslationTransform();
+	//doScaleTransform();
+	//doTransform();
 	//Ö´ÐÐ´°¿ÚÑ­»·
 	while (Application::getInstance()->update())
 	{
+		doRotation();
 		render();
 	}
 	delete grassTexture;
