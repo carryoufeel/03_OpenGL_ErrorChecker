@@ -15,7 +15,8 @@ Shader* shader = nullptr;
 Texture* grassTexture = nullptr;
 Texture* landTexture = nullptr;
 Texture* noiseTexture = nullptr;
-glm::mat4 transform(1.0);
+glm::mat4 transform(1.0f);
+glm::mat4 viewMatrix(1.0f);
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -253,6 +254,7 @@ void render()
 	//shader->setVector3("uColor", color);
 	shader->setInt("grassSampler",0);
 	shader->setMatrix4x4("transform", transform);
+	shader->setMatrix4x4("viewMatrix", viewMatrix);
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
@@ -268,6 +270,15 @@ void prepareTexture()
 	//landTexture = new Texture("./assets/textures/land.jpg", 1);
 	//noiseTexture = new Texture("./assets/textures/noise.png", 2);
 }
+
+void prepareCamera()
+{
+	//eye:相机位置
+	//center:观察目标点
+	//up:穹顶向量
+	viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
 
 int main()
 {
@@ -288,6 +299,7 @@ int main()
 	//prepareInterleavedBuffer();
 	prepareVAO();
 	prepareTexture();
+	prepareCamera();
 	//doRotationTransform();
 	//doTranslationTransform();
 	//doScaleTransform();
@@ -295,7 +307,7 @@ int main()
 	//执行窗口循环
 	while (Application::getInstance()->update())
 	{
-		doRotation();
+		//doRotation();
 		render();
 	}
 	delete grassTexture;
