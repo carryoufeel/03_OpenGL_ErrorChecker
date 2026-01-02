@@ -11,6 +11,7 @@
 
 		uniform mat4 transform;
 		uniform mat4 viewMatrix;
+		uniform mat4 projectionMatrix;
 
 		void main()
 		{
@@ -24,8 +25,8 @@
 
 			vec4 position = vec4(aPos, 1.0);
 
-			position =viewMatrix *  transform * position;
-
+			position = projectionMatrix * viewMatrix * transform * position;
+			//position =viewMatrix * transform * position;
 			gl_Position = position;
 			ourColor = aColor;
 			//float deltaU=time*speed*0.1;

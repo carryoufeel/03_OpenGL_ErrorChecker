@@ -17,6 +17,7 @@ Texture* landTexture = nullptr;
 Texture* noiseTexture = nullptr;
 glm::mat4 transform(1.0f);
 glm::mat4 viewMatrix(1.0f);
+glm::mat4 orthoMatrix(1.0f);
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -36,7 +37,7 @@ void OnResize(int width,int height)
 
 void doRotationTransform()
 {
-	transform = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	transform = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0, 0.0, 1.0));
 }
 
 void doTranslationTransform()
@@ -147,10 +148,10 @@ void prepareVAO()
 {
 	float vertexData[] = {
 		// 位置              // 颜色
-		 -0.8f,  0.8f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 -0.8f, -0.8f, 0.0f, 0.0f, 1.0f, 0.0f,
-		0.8f, -0.8f, 0.0f, 0.0f, 0.0f, 1.0f,
-		0.8f,  0.8f, 0.0f, 1.0f, 1.0f, 0.0f
+		 -0.8f,  0.8f, 0.1f, 1.0f, 0.0f, 0.0f,
+		 -0.8f, -0.8f, 0.1f, 0.0f, 1.0f, 0.0f,
+		0.8f, -0.8f, 0.1f, 0.0f, 0.0f, 1.0f,
+		0.8f,  0.8f, 0.1f, 1.0f, 1.0f, 0.0f
 	};
 	unsigned int indices[] = {
 		0, 1, 2, // first triangle
@@ -255,6 +256,7 @@ void render()
 	shader->setInt("grassSampler",0);
 	shader->setMatrix4x4("transform", transform);
 	shader->setMatrix4x4("viewMatrix", viewMatrix);
+	shader->setMatrix4x4("projectionMatrix", orthoMatrix);
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
@@ -276,9 +278,14 @@ void prepareCamera()
 	//eye:相机位置
 	//center:观察目标点
 	//up:穹顶向量
-	viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = glm::lookAt(glm::vec3(1.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
+void prepareOrtho()
+{
+	//float aspect = (float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight();
+	orthoMatrix = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 2.0f, -2.0f);
+}
 
 int main()
 {
@@ -300,6 +307,7 @@ int main()
 	prepareVAO();
 	prepareTexture();
 	prepareCamera();
+	prepareOrtho();
 	//doRotationTransform();
 	//doTranslationTransform();
 	//doScaleTransform();
