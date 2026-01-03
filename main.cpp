@@ -18,6 +18,7 @@ Texture* noiseTexture = nullptr;
 glm::mat4 transform(1.0f);
 glm::mat4 viewMatrix(1.0f);
 glm::mat4 orthoMatrix(1.0f);
+glm::mat4 perspectiveMatrix(1.0f);
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -256,7 +257,7 @@ void render()
 	shader->setInt("grassSampler",0);
 	shader->setMatrix4x4("transform", transform);
 	shader->setMatrix4x4("viewMatrix", viewMatrix);
-	shader->setMatrix4x4("projectionMatrix", orthoMatrix);
+	shader->setMatrix4x4("projectionMatrix", perspectiveMatrix);
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
@@ -278,13 +279,22 @@ void prepareCamera()
 	//eye:相机位置
 	//center:观察目标点
 	//up:穹顶向量
-	viewMatrix = glm::lookAt(glm::vec3(1.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = glm::lookAt(glm::vec3(0.5f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void prepareOrtho()
 {
 	//float aspect = (float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight();
 	orthoMatrix = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 2.0f, -2.0f);
+}
+
+void preparePerspective()
+{
+	//fovy:y轴视野角度
+	//aspect:宽高比
+	//near:近裁剪面
+	//far:远裁剪面
+	perspectiveMatrix = glm::perspective(glm::radians(90.0f),(float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight(), 0.1f, 100.0f);
 }
 
 int main()
@@ -307,7 +317,8 @@ int main()
 	prepareVAO();
 	prepareTexture();
 	prepareCamera();
-	prepareOrtho();
+	//prepareOrtho();
+	preparePerspective();
 	//doRotationTransform();
 	//doTranslationTransform();
 	//doScaleTransform();
