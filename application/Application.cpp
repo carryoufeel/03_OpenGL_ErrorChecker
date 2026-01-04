@@ -1,4 +1,6 @@
 #include "Application.h"
+#include "Application.h"
+#include "Application.h"
 #include <glad/glad.h>
 #include <iostream>
 #include <GLFW/glfw3.h>
@@ -49,6 +51,10 @@ bool Application::init(const int& width, const int& height)
 
 	glfwSetKeyCallback(mWindow, key_callback);
 
+	glfwSetMouseButtonCallback(mWindow, mouse_callback);
+
+	glfwSetCursorPosCallback(mWindow, cursor_callback);
+
 	glfwSetWindowUserPointer(mWindow,this);
 
 	return true;
@@ -89,6 +95,20 @@ void Application::key_callback(GLFWwindow* window, int key, int scancode, int ac
 	Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 	if (app->mKeyCallBack != nullptr)
 		app->mKeyCallBack(key, scancode, action, mods);
+}
+
+void Application::mouse_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+	if (app->mMouseCallBack != nullptr)
+		app->mMouseCallBack(button, action, mods);
+}
+
+void Application::cursor_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+	if (app->mCursorCallBack != nullptr)
+		app->mCursorCallBack(xpos, ypos);
 }
 
 Application::Application()

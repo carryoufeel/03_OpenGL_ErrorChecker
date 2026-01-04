@@ -36,6 +36,16 @@ void OnResize(int width,int height)
 	GL_CALL(glViewport(0, 0, width, height));
 }
 
+void OnMouse(int button, int action, int mods)
+{
+	std::cout << "OnMouse button:" << button << " action:" << action << " mods:" << mods << std::endl;
+}
+
+void OnCursor(double xpos, double ypos)
+{
+	std::cout << "OnCursor xpos:" << xpos << " ypos:" << ypos << std::endl;
+}
+
 void doRotationTransform()
 {
 	transform = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0, 0.0, 1.0));
@@ -307,7 +317,8 @@ int main()
 	}
 	Application::getInstance()->setResizeCallBack(OnResize);
 	Application::getInstance()->setKeyCallBack(onKey);
-	
+	Application::getInstance()->setMouseCallBack(OnMouse);
+	Application::getInstance()->setCursorCallBack(OnCursor);
 	//…Ë÷√«Â∆¡—’…´
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	prepareShader();
