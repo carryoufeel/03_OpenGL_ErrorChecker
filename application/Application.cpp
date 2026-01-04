@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "Application.h"
 #include "Application.h"
+#include "Application.h"
+#include "Application.h"
 #include <glad/glad.h>
 #include <iostream>
 #include <GLFW/glfw3.h>
@@ -18,6 +20,11 @@ Application* Application::getInstance()
 		mInstance = new Application();
 	}
 	return mInstance;
+}
+
+void Application::getCursorPosition(double* xpos, double* ypos)
+{
+	glfwGetCursorPos(mWindow, xpos, ypos);
 }
 
 bool Application::init(const int& width, const int& height)
@@ -56,6 +63,8 @@ bool Application::init(const int& width, const int& height)
 	glfwSetCursorPosCallback(mWindow, cursor_callback);
 
 	glfwSetWindowUserPointer(mWindow,this);
+
+	glfwSetScrollCallback(mWindow, scroll_callback);
 
 	return true;
 }
@@ -109,6 +118,13 @@ void Application::cursor_callback(GLFWwindow* window, double xpos, double ypos)
 	Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
 	if (app->mCursorCallBack != nullptr)
 		app->mCursorCallBack(xpos, ypos);
+}
+
+void Application::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+	if (app->mScrollCallback != nullptr)
+		app->mScrollCallback(yoffset);
 }
 
 Application::Application()

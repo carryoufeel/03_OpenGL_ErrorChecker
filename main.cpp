@@ -5,10 +5,11 @@
 
 #include "wrapper/chackError.h"
 #include "application/Application.h"
-
 #include "glframework/texture.h"
-
 #pragma comment(lib, "opengl32.lib")
+
+#include "application/camera/perspectiveCamera.h"
+#include "application/camera/trackBallCameraControl.h"
 
 GLuint vao;
 Shader* shader = nullptr;
@@ -16,18 +17,14 @@ Texture* grassTexture = nullptr;
 Texture* landTexture = nullptr;
 Texture* noiseTexture = nullptr;
 glm::mat4 transform(1.0f);
-glm::mat4 viewMatrix(1.0f);
 glm::mat4 orthoMatrix(1.0f);
-glm::mat4 perspectiveMatrix(1.0f);
+
+PerspectiveCamera* camera = nullptr;
+TrackBallCameraControl* cameraControl = nullptr;
 
 void onKey(int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_W)
-	{
-
-	}
-
-	std::cout << "key:" << key << "action:" << action<<"mods:"<< mods<<std::endl;
+	cameraControl->onKey(key,action,mods);
 }
 
 void OnResize(int width,int height)
@@ -38,12 +35,19 @@ void OnResize(int width,int height)
 
 void OnMouse(int button, int action, int mods)
 {
-	std::cout << "OnMouse button:" << button << " action:" << action << " mods:" << mods << std::endl;
+	double xpos, ypos;
+	Application::getInstance()->getCursorPosition(&xpos, &ypos);
+	cameraControl->onMouse(button, action, xpos, ypos);
 }
 
 void OnCursor(double xpos, double ypos)
 {
-	std::cout << "OnCursor xpos:" << xpos << " ypos:" << ypos << std::endl;
+	cameraControl->onCursor(xpos, ypos);
+}
+
+void OnScroll(double offset)
+{
+	cameraControl->onScroll(offset);
 }
 
 void doRotationTransform()
@@ -266,8 +270,8 @@ void render()
 	//shader->setVector3("uColor", color);
 	shader->setInt("grassSampler",0);
 	shader->setMatrix4x4("transform", transform);
-	shader->setMatrix4x4("viewMatrix", viewMatrix);
-	shader->setMatrix4x4("projectionMatrix", perspectiveMatrix);
+	shader->setMatrix4x4("viewMatrix", camera->getViewMatrix());
+	shader->setMatrix4x4("projectionMatrix", camera->getProjectionMatrix());
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
@@ -286,25 +290,17 @@ void prepareTexture()
 
 void prepareCamera()
 {
-	//eye:相机位置
-	//center:观察目标点
-	//up:穹顶向量
-	viewMatrix = glm::lookAt(glm::vec3(0.5f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera = new PerspectiveCamera(60.0f, 
+		(float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight(), 
+		0.1f, 1000.0f);
+	cameraControl = new TrackBallCameraControl();
+	cameraControl->setCamera(camera);
 }
 
 void prepareOrtho()
 {
 	//float aspect = (float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight();
 	orthoMatrix = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 2.0f, -2.0f);
-}
-
-void preparePerspective()
-{
-	//fovy:y轴视野角度
-	//aspect:宽高比
-	//near:近裁剪面
-	//far:远裁剪面
-	perspectiveMatrix = glm::perspective(glm::radians(90.0f),(float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight(), 0.1f, 100.0f);
 }
 
 int main()
@@ -319,6 +315,7 @@ int main()
 	Application::getInstance()->setKeyCallBack(onKey);
 	Application::getInstance()->setMouseCallBack(OnMouse);
 	Application::getInstance()->setCursorCallBack(OnCursor);
+	Application::getInstance()->setScrollCallback(OnScroll);
 	//设置清屏颜色
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	prepareShader();
@@ -329,7 +326,6 @@ int main()
 	prepareTexture();
 	prepareCamera();
 	//prepareOrtho();
-	preparePerspective();
 	//doRotationTransform();
 	//doTranslationTransform();
 	//doScaleTransform();
@@ -338,6 +334,7 @@ int main()
 	while (Application::getInstance()->update())
 	{
 		//doRotation();
+		cameraControl->update();
 		render();
 	}
 	delete grassTexture;
