@@ -10,7 +10,7 @@
 
 #include "application/camera/perspectiveCamera.h"
 #include "application/camera/trackBallCameraControl.h"
-
+#include "application/camera/gameCameraControl.h"
 GLuint vao;
 Shader* shader = nullptr;
 Texture* grassTexture = nullptr;
@@ -20,7 +20,7 @@ glm::mat4 transform(1.0f);
 glm::mat4 orthoMatrix(1.0f);
 
 PerspectiveCamera* camera = nullptr;
-TrackBallCameraControl* cameraControl = nullptr;
+GameCameraControl* cameraControl = nullptr;
 
 void onKey(int key, int scancode, int action, int mods)
 {
@@ -293,7 +293,7 @@ void prepareCamera()
 	camera = new PerspectiveCamera(60.0f, 
 		(float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight(), 
 		0.1f, 1000.0f);
-	cameraControl = new TrackBallCameraControl();
+	cameraControl = new GameCameraControl();
 	cameraControl->setCamera(camera);
 }
 
