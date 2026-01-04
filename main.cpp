@@ -15,7 +15,14 @@ Shader* shader = nullptr;
 Texture* grassTexture = nullptr;
 Texture* landTexture = nullptr;
 Texture* noiseTexture = nullptr;
-glm::mat4 transform(1.0f);
+//glm::mat4 transform(1.0f);
+
+glm::mat4 transformhjs(1.0f);
+glm::mat4 transformboki(1.0f);
+
+Texture* texturehjs = nullptr;
+Texture* textureboki = nullptr;
+
 glm::mat4 viewMatrix(1.0f);
 glm::mat4 orthoMatrix(1.0f);
 glm::mat4 perspectiveMatrix(1.0f);
@@ -36,36 +43,6 @@ void OnResize(int width,int height)
 	GL_CALL(glViewport(0, 0, width, height));
 }
 
-void doRotationTransform()
-{
-	transform = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0, 0.0, 1.0));
-}
-
-void doTranslationTransform()
-{
-	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
-}
-
-void doScaleTransform()
-{
-	transform = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
-}
-
-void doTransform()
-{
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
-	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
-	//transform = translation * rotation ;
-	transform = rotation * translation;
-}
-
-void doRotation() 
-{
-	static float angle = 0.0f;
-	angle += 1.0f;
-	transform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
-}
 
 void prepareVBO()
 {
@@ -241,10 +218,15 @@ void prepareShader()
 	shader = new Shader("./assets/shaders/vertex.glsl", "./assets/shaders/fragment.glsl");
 }
 
+void prepareState() {
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+}
+
 void render()
 {
 	//清理
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	//使用着色器程序
 	shader->begin();
 
@@ -255,23 +237,33 @@ void render()
 	//float color[3] = { 0.9f,0.2f,0.2f };
 	//shader->setVector3("uColor", color);
 	shader->setInt("grassSampler",0);
-	shader->setMatrix4x4("transform", transform);
+	shader->setMatrix4x4("transform", transformhjs);
 	shader->setMatrix4x4("viewMatrix", viewMatrix);
 	shader->setMatrix4x4("projectionMatrix", perspectiveMatrix);
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
+	
 	GL_CALL(glBindVertexArray(vao));
+
+	//first绘制
+	texturehjs->bind();
 	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+
+	//second绘制
+	textureboki->bind();
+	transformboki = glm::translate(glm::mat4(1.0f), glm::vec3(0.8f, 0.0f, -0.5f));
+	shader->setMatrix4x4("transform", transformboki);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 	GL_CALL(glBindVertexArray(0));
 	shader->end();
 }
 
 void prepareTexture()
 {
-	grassTexture = new Texture("./assets/textures/hjs.jpg", 0);
-	//landTexture = new Texture("./assets/textures/land.jpg", 1);
-	//noiseTexture = new Texture("./assets/textures/noise.png", 2);
+	textureboki = new Texture("./assets/textures/boki.png",0);
+	texturehjs = new Texture("./assets/textures/hjs.jpg", 0);
 }
 
 void prepareCamera()
@@ -279,7 +271,7 @@ void prepareCamera()
 	//eye:相机位置
 	//center:观察目标点
 	//up:穹顶向量
-	viewMatrix = glm::lookAt(glm::vec3(0.5f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void prepareOrtho()
@@ -318,6 +310,7 @@ int main()
 	prepareTexture();
 	prepareCamera();
 	//prepareOrtho();
+	prepareState();
 	preparePerspective();
 	//doRotationTransform();
 	//doTranslationTransform();
