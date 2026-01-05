@@ -11,7 +11,10 @@
 #include "application/camera/perspectiveCamera.h"
 #include "application/camera/trackBallCameraControl.h"
 #include "application/camera/gameCameraControl.h"
-GLuint vao;
+
+#include "glframework/geometry.h"
+
+Geometry* geometry = nullptr;
 Shader* shader = nullptr;
 Texture* grassTexture = nullptr;
 Texture* landTexture = nullptr;
@@ -20,8 +23,8 @@ glm::mat4 transform(1.0f);
 glm::mat4 orthoMatrix(1.0f);
 
 PerspectiveCamera* camera = nullptr;
-GameCameraControl* cameraControl = nullptr;
-
+TrackBallCameraControl* cameraControl = nullptr;
+ 
 void onKey(int key, int scancode, int action, int mods)
 {
 	cameraControl->onKey(key,action,mods);
@@ -161,93 +164,11 @@ void prepareSingleBuffer()
 
 void prepareVAO()
 {
-	float vertexData[] = {
-		// 位置              // 颜色
-		 -0.8f,  0.8f, 0.1f, 1.0f, 0.0f, 0.0f,
-		 -0.8f, -0.8f, 0.1f, 0.0f, 1.0f, 0.0f,
-		0.8f, -0.8f, 0.1f, 0.0f, 0.0f, 1.0f,
-		0.8f,  0.8f, 0.1f, 1.0f, 1.0f, 0.0f
-	};
-	unsigned int indices[] = {
-		0, 1, 2, // first triangle
-		0, 2, 3  // second triangle
-
-	};
-	float uvs[]= {
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f
-	};
-
-	//准备VBO
-	GLuint vbo = 0;
-	GL_CALL(glGenBuffers(1, &vbo));  //创建位置VBO
-	//绑定VBO
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW));
-
-	GLuint uvVbo = 0;
-	GL_CALL(glGenBuffers(1, &uvVbo));  //创建UV VBO
-	//绑定VBO
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, uvVbo));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW));
-
-	//准备EBO
-	GLuint ebo = 0;
-	GL_CALL(glGenBuffers(1, &ebo));  //创建EBO
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
-
-	//准备VAO
-	vao = 0;
-	GL_CALL(glGenVertexArrays(1, &vao));
-	GL_CALL(glBindVertexArray(vao));
-	//描述位置属性
-	GL_CALL(glEnableVertexAttribArray(0));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
-	//描述颜色属性
-	GL_CALL(glEnableVertexAttribArray(1));
-	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
-	//加入UV属性描述数据
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, uvVbo));
-	GL_CALL(glEnableVertexAttribArray(2));
-	GL_CALL(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0));
-
-	//绑定EBO到VAO
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
-
-	//解绑VAO
-	GL_CALL(glBindVertexArray(0));
+	geometry = Geometry::createBox(6.0f);
 }
 
 void prepareInterleavedBuffer()
 {
-	float vertexData[] = {
-		// 位置              // 颜色
-		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-	};
-	//准备VBO
-	GLuint vbo = 0;
-	GL_CALL(glGenBuffers(1, &vbo));  //创建位置VBO
-	//绑定VBO
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW));
-	//准备VAO
-	vao = 0;
-	GL_CALL(glGenVertexArrays(1, &vao));
-	GL_CALL(glBindVertexArray(vao));
-	//描述位置属性
-	GL_CALL(glEnableVertexAttribArray(0));
-	GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
-	//描述颜色属性
-	GL_CALL(glEnableVertexAttribArray(1));
-	GL_CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
-	//解绑VAO
-	GL_CALL(glBindVertexArray(0));
 }
 
 void prepareShader()
@@ -258,7 +179,7 @@ void prepareShader()
 void render()
 {
 	//清理
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
 	//使用着色器程序
 	shader->begin();
 
@@ -275,15 +196,15 @@ void render()
 	//shader->setInt("landSampler",1);
 	//shader->setInt("noiseSampler",2);
 	//绑定VAO
-	GL_CALL(glBindVertexArray(vao));
-	glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
+	GL_CALL(glBindVertexArray(geometry->getVao()));
+	glDrawElements(GL_TRIANGLES, geometry->getIndicesCount(), GL_UNSIGNED_INT, 0);
 	GL_CALL(glBindVertexArray(0));
 	shader->end();
 }
 
 void prepareTexture()
 {
-	grassTexture = new Texture("./assets/textures/hjs.jpg", 0);
+	grassTexture = new Texture("./assets/textures/land.jpg", 0);
 	//landTexture = new Texture("./assets/textures/land.jpg", 1);
 	//noiseTexture = new Texture("./assets/textures/noise.png", 2);
 }
@@ -293,8 +214,14 @@ void prepareCamera()
 	camera = new PerspectiveCamera(60.0f, 
 		(float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight(), 
 		0.1f, 1000.0f);
-	cameraControl = new GameCameraControl();
+	cameraControl = new TrackBallCameraControl();
 	cameraControl->setCamera(camera);
+}
+
+void prepareState()
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 }
 
 void prepareOrtho()
@@ -325,6 +252,7 @@ int main()
 	prepareVAO();
 	prepareTexture();
 	prepareCamera();
+	prepareState();
 	//prepareOrtho();
 	//doRotationTransform();
 	//doTranslationTransform();
