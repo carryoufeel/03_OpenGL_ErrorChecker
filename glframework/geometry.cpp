@@ -1,5 +1,5 @@
-
 #include "geometry.h"
+#include <vector>
 
 Geometry::Geometry()
 {
@@ -116,5 +116,74 @@ Geometry* Geometry::createBox(float size)
 Geometry* Geometry::createSphere(float radius)
 {
 	Geometry* geometry = new Geometry();
+	//位置，uv，索引
+	std::vector<GLfloat> positions;
+	std::vector<GLfloat> uvs;
+	std::vector<GLuint> indices;
+	int numLatLines = 60;//纬线
+	int numLongLines = 60;//经线
+	
+	for (int i = 0; i <= numLatLines; ++i)
+	{
+		for (int j = 0; j <= numLongLines; ++j)
+		{
+			float phi = i*glm::pi<float>() / numLatLines;
+			float theta = j * 2.0f * glm::pi<float>() / numLongLines;
+			float y = radius*cos(phi);
+			float x = radius * sin(phi) * cos(theta);
+			float z = radius * sin(phi) * sin(theta);
+			float u = 1 - (float)j / numLongLines;
+			float v = 1 - (float)i / numLatLines;
+			positions.push_back(x);
+			positions.push_back(y);
+			positions.push_back(z);
+			uvs.push_back(u);
+			uvs.push_back(v);
+		}
+	}
+	for (int i = 0; i < numLatLines; ++i)
+	{
+		for (int j = 0; j < numLongLines; ++j)
+		{
+			int first = (i * (numLongLines + 1)) + j;
+			int second = first + numLongLines + 1;
+			int third = first + 1;
+			int fourth = second + 1;
+			indices.push_back(first);
+			indices.push_back(second);
+			indices.push_back(third);
+
+			indices.push_back(third);
+			indices.push_back(second);
+			indices.push_back(fourth);
+		}
+	}
+	GLuint& posVbo = geometry->mPosVbo;
+	GLuint& uvVbo = geometry->mUvVbo;
+	glGenBuffers(1, &posVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, posVbo);
+	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(float), positions.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &uvVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, uvVbo);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size()*sizeof(float), uvs.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &geometry->mEbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry->mEbo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+
+	glGenVertexArrays(1, &geometry->mVao);
+	glBindVertexArray(geometry->mVao);
+	glBindBuffer(GL_ARRAY_BUFFER, posVbo);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, uvVbo);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry->mEbo);
+	glBindVertexArray(0);
+
+	geometry->mIndicesCount = static_cast<uint32_t>(indices.size());
 	return geometry;
 }
