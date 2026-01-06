@@ -1,89 +1,158 @@
 #include <iostream>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
-void frameBufferSizeCallBack(GLFWwindow *window,int width,int height) 
+#include "glframework/core.h"
+#include "glframework/shader.h"
+
+#include "wrapper/chackError.h"
+#include "application/Application.h"
+#include "glframework/texture.h"
+#pragma comment(lib, "opengl32.lib")
+
+#include "application/camera/perspectiveCamera.h"
+#include "application/camera/trackBallCameraControl.h"
+#include "application/camera/gameCameraControl.h"
+
+#include "glframework/geometry.h"
+
+Geometry* geometry = nullptr;
+Shader* shader = nullptr;
+
+Texture* texture = nullptr;
+
+glm::mat4 transform(1.0f);
+
+PerspectiveCamera* camera = nullptr;
+TrackBallCameraControl* cameraControl = nullptr;
+ 
+void onKey(int key, int scancode, int action, int mods)
 {
-	std::cout << "new size" << width << "," << height << std::endl;
-	glViewport(0, 0, width, height);
+	cameraControl->onKey(key,action,mods);
 }
 
-void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
+void OnResize(int width,int height)
 {
-	if (key == GLFW_KEY_W)
-	{
-
-	}
-
-	std::cout << "key:" << key << "action:" << action<<"mods:"<< mods<<std::endl;
+	GL_CALL(glViewport(0, 0, width, height));
 }
 
-void checkError()
+void OnMouse(int button, int action, int mods)
 {
-	GLenum err = glGetError();
-	switch (err)
-	{
-	case GL_NO_ERROR:
-		break;
-	case GL_INVALID_ENUM:
-		std::cout << "GL_INVALID_ENUM" << std::endl;
-		break;
-	case GL_INVALID_VALUE:
-		std::cout << "GL_INVALID_VALUE" << std::endl;
-		break;
-	case GL_INVALID_OPERATION:
-		std::cout << "GL_INVALID_OPERATION" << std::endl;
-		break;
-	case GL_OUT_OF_MEMORY:
-		std::cout << "GL_OUT_OF_MEMORY" << std::endl;
-		break;
-	default:
-		break;
-	}
+	double xpos, ypos;
+	Application::getInstance()->getCursorPosition(&xpos, &ypos);
+	cameraControl->onMouse(button, action, xpos, ypos);
+}
+
+void OnCursor(double xpos, double ypos)
+{
+	cameraControl->onCursor(xpos, ypos);
+}
+
+void OnScroll(double offset)
+{
+	cameraControl->onScroll(offset);
+}
+
+void doRotationTransform()
+{
+	transform = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(0.0, 0.0, 1.0));
+}
+
+void doTranslationTransform()
+{
+	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
+}
+
+void doScaleTransform()
+{
+	transform = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+}
+
+void doTransform()
+{
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
+	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+	transform = rotation * translation;
+}
+
+void doRotation() 
+{
+	static float angle = 0.0f;
+	angle += 1.0f;
+	transform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
+}
+
+void prepareVAO()
+{
+	geometry = Geometry::createSphere(6.0f);
+}
+
+void prepareShader()
+{
+	shader = new Shader("./assets/shaders/vertex.glsl", "./assets/shaders/fragment.glsl");
+}
+
+void render()
+{
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT));
+	shader->begin();
+
+	shader->setInt("Sampler",0);
+	shader->setMatrix4x4("transform", transform);
+	shader->setMatrix4x4("viewMatrix", camera->getViewMatrix());
+	shader->setMatrix4x4("projectionMatrix", camera->getProjectionMatrix());
+
+	GL_CALL(glBindVertexArray(geometry->getVao()));
+	glDrawElements(GL_TRIANGLES, geometry->getIndicesCount(), GL_UNSIGNED_INT, 0);
+	GL_CALL(glBindVertexArray(0));
+	shader->end();
+}
+
+void prepareTexture()
+{
+	texture = new Texture("./assets/textures/land.jpg", 0);
+}
+
+void prepareCamera()
+{
+	camera = new PerspectiveCamera(60.0f, 
+		(float)Application::getInstance()->getWidth() / (float)Application::getInstance()->getHeight(), 
+		0.1f, 1000.0f);
+	cameraControl = new TrackBallCameraControl();
+	cameraControl->setCamera(camera);
+}
+
+void prepareState()
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 }
 
 int main()
 {
-	//1.初始化GLFW
-	glfwInit();
-	//设置OpenGL版本号
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,6);
-	//设置OpenGL配置
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
-	//2.创建窗口
-	GLFWwindow* window = glfwCreateWindow(800, 600, "openGLstudy", NULL, NULL);
-	glfwMakeContextCurrent(window);
-	//注册回调函数
-	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallBack);
-
-	glfwSetKeyCallback(window,keyCallBack);
-	//加载OpenGL函数指针
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!Application::getInstance()->init())
 	{
-		std::cout << "failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-	//设置视口
-	glViewport(0, 0, 800, 600);
-	//设置清屏颜色
+	Application::getInstance()->setResizeCallBack(OnResize);
+	Application::getInstance()->setKeyCallBack(onKey);
+	Application::getInstance()->setMouseCallBack(OnMouse);
+	Application::getInstance()->setCursorCallBack(OnCursor);
+	Application::getInstance()->setScrollCallback(OnScroll);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-	//3.执行窗口循环
-	while (!glfwWindowShouldClose(window))
+	prepareShader();
+	prepareVAO();
+	prepareTexture();
+	prepareCamera();
+	prepareState();
+	//执行窗口循环
+	while (Application::getInstance()->update())
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
-		//glClear(-1);
-		
-		glfwPollEvents();
-
-		glfwSwapBuffers(window);
+		cameraControl->update();
+		render();
 	}
-
+	delete texture;
+	delete shader;
 	//4.释放资源
-	glfwTerminate();
-
+	Application::getInstance()->destroy();
     return 0;
 }
