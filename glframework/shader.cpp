@@ -1,9 +1,4 @@
 #include "shader.h"
-#include "shader.h"
-#include "shader.h"
-#include "shader.h"
-#include "shader.h"
-#include "shader.h"
 
 #include "../wrapper/chackError.h"
 
@@ -89,6 +84,12 @@ void Shader::setVector3(const std::string& name, const float* value)
 	GLint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
 	
 	GL_CALL(glUniform3fv(location, 1, value));
+}
+
+void Shader::setVector3(const std::string& name, const glm::vec3 value)
+{
+	GLint location = GL_CALL(glGetUniformLocation(mProgram, name.c_str()));
+	GL_CALL(glUniform3f(location,value.x,value.y,value.z));
 }
 
 void Shader::setInt(const std::string& name, int value)

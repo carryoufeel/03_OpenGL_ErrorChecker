@@ -9,7 +9,7 @@ file(GLOB ASSETS "./assets")
 file(COPY ${ASSETS} DESTINATION ${CMAKE_BINARY_DIR})
 
 add_definitions(-DDEBUG)
-
+ 
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/include)
 
 link_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/lib)

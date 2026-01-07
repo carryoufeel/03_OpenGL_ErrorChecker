@@ -14,6 +14,9 @@
 
 #include "glframework/geometry.h"
 
+glm::vec3 lightDirection(-1.0f, -1.0f, -1.0f);
+glm::vec3 lightColor(0.9f, 0.85f, 0.75f);
+
 Geometry* geometry = nullptr;
 Shader* shader = nullptr;
 
@@ -83,9 +86,9 @@ void doRotation()
 
 void prepareVAO()
 {
-	geometry = Geometry::createPlane(3.0f,2.0f);
+	//geometry = Geometry::createPlane(3.0f,2.0f);
 	//geometry = Geometry::createSphere(1.0f);
-	//geometry = Geometry::createBox(1.0f);
+	geometry = Geometry::createBox(1.0f);
 }
 
 void prepareShader()
@@ -99,9 +102,14 @@ void render()
 	shader->begin();
 
 	shader->setInt("Sampler",0);
-	shader->setMatrix4x4("transform", transform);
+	shader->setMatrix4x4("modelMatrix", transform);
 	shader->setMatrix4x4("viewMatrix", camera->getViewMatrix());
 	shader->setMatrix4x4("projectionMatrix", camera->getProjectionMatrix());
+	
+	shader->setVector3("lightDirection", lightDirection);
+	shader->setVector3("lightColor", lightColor);
+
+	shader->setVector3("cameraPosition",camera->mPosition);
 
 	GL_CALL(glBindVertexArray(geometry->getVao()));
 	glDrawElements(GL_TRIANGLES, geometry->getIndicesCount(), GL_UNSIGNED_INT, 0);
