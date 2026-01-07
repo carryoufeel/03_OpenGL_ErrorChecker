@@ -24,5 +24,5 @@
 			gl_Position = projectionMatrix * viewMatrix * transformPosition;
 
 			uv = aUV;
-			normal = aNormal;
+			normal =transpose( inverse(mat3(modelMatrix)) )*aNormal;
 		}

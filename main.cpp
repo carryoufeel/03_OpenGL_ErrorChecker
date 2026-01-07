@@ -14,8 +14,11 @@
 
 #include "glframework/geometry.h"
 
-glm::vec3 lightDirection(-1.0f, -1.0f, -1.0f);
+glm::vec3 lightDirection(-1.0f, 0.0f, -1.0f);
 glm::vec3 lightColor(0.9f, 0.85f, 0.75f);
+float specularIntensity=0.5f;
+
+glm::vec3 ambientColor = glm::vec3(0.3f, 0.3f, 0.3f);
 
 Geometry* geometry = nullptr;
 Shader* shader = nullptr;
@@ -64,18 +67,22 @@ void doTranslationTransform()
 	transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
 }
 
+void doTramsform() {
+	transform = glm::rotate(transform, 0.003f, glm::vec3(0.0, 0.0, 1.0));
+}
+
 void doScaleTransform()
 {
 	transform = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
 }
 
-void doTransform()
-{
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
-	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
-	transform = rotation * translation;
-}
+//void doTransform()
+//{
+//	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+//	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.0f, 0.0f));
+//	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+//	transform = rotation * translation;
+//}
 
 void doRotation() 
 {
@@ -87,8 +94,8 @@ void doRotation()
 void prepareVAO()
 {
 	//geometry = Geometry::createPlane(3.0f,2.0f);
-	//geometry = Geometry::createSphere(1.0f);
-	geometry = Geometry::createBox(1.0f);
+	geometry = Geometry::createSphere(1.0f);
+	//geometry = Geometry::createBox(1.0f);
 }
 
 void prepareShader()
@@ -108,8 +115,10 @@ void render()
 	
 	shader->setVector3("lightDirection", lightDirection);
 	shader->setVector3("lightColor", lightColor);
-
+	shader->setFloat("specularIntensity", specularIntensity);
+	shader->setVector3("ambientColor", ambientColor);
 	shader->setVector3("cameraPosition",camera->mPosition);
+
 
 	GL_CALL(glBindVertexArray(geometry->getVao()));
 	glDrawElements(GL_TRIANGLES, geometry->getIndicesCount(), GL_UNSIGNED_INT, 0);
@@ -157,6 +166,7 @@ int main()
 	//Ö´ĞĞ´°¿ÚÑ­»·
 	while (Application::getInstance()->update())
 	{
+		doTramsform();
 		cameraControl->update();
 		render();
 	}
