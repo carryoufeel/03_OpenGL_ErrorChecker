@@ -13,6 +13,9 @@
 #include "application/camera/gameCameraControl.h"
 
 #include "glframework/geometry.h"
+#include "glframework/material/phongMaterial.h"
+#include "glframework/object.h"
+#include "glframework/mesh.h"
 
 glm::vec3 lightDirection(-1.0f, 0.0f, -1.0f);
 glm::vec3 lightColor(0.9f, 0.85f, 0.75f);
@@ -91,6 +94,15 @@ void doRotation()
 	transform = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0, 0.0, 1.0));
 }
 
+
+void Prepare() {
+	auto geometry = Geometry::createSphere(3.0f);
+	auto material = new PhongMaterial();
+	material->mShiness = 32.0f;
+	material->mDiffuse = new Texture("./assets/textures/land.jpg", 0);
+	auto mesh = new Mesh(geometry, material);
+}
+
 void prepareVAO()
 {
 	//geometry = Geometry::createPlane(3.0f,2.0f);
@@ -157,12 +169,13 @@ int main()
 	Application::getInstance()->setMouseCallBack(OnMouse);
 	Application::getInstance()->setCursorCallBack(OnCursor);
 	Application::getInstance()->setScrollCallback(OnScroll);
+	glViewport(0,0,1920,1080);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	prepareShader();
-	prepareVAO();
-	prepareTexture();
+	//prepareShader();
+	//prepareVAO();
+	//prepareTexture();
 	prepareCamera();
-	prepareState();
+	//prepareState();
 	//Ö´ĞĞ´°¿ÚÑ­»·
 	while (Application::getInstance()->update())
 	{
